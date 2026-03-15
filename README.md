@@ -325,6 +325,213 @@ curl -X POST http://localhost:4000/users/login \
 
 ---
 
+## GET /users/profile
+
+#### Description
+This endpoint retrieves the authenticated user's profile information. Requires valid JWT token in the Authorization header or as a cookie. The auth middleware validates the token before returning the user data.
+
+---
+
+## Request Details
+
+### HTTP Method
+```
+GET
+```
+
+### Endpoint URL
+```
+/users/profile
+```
+
+### Authentication
+**Required** - Must include valid JWT token
+
+#### Option 1: Bearer Token in Header
+```
+Authorization: Bearer <jwt_token>
+```
+
+#### Option 2: Token in Cookie
+```
+Cookie: token=<jwt_token>
+```
+
+### Request Body
+None - No request body required
+
+---
+
+## Response Details
+
+### Success Response (HTTP 200 - OK)
+
+Returns the authenticated user's profile data.
+
+```json
+{
+  "user": {
+    "_id": "507f1f77bcf86cd799439011",
+    "fullname": {
+      "firstname": "Akhand",
+      "lastname": "Singh"
+    },
+    "email": "akhand@example.com"
+  }
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+### Unauthorized Response (HTTP 401 - Unauthorized)
+
+Returned when token is missing, invalid, or expired.
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+### Server Error Response (HTTP 500 - Internal Server Error)
+
+Returned when an unexpected server error occurs.
+
+```json
+{
+  "error": "Internal Server Error"
+}
+```
+
+**Status Code:** `500 Internal Server Error`
+
+---
+
+## Status Codes Summary (Profile)
+
+| Status Code | Description | When It Occurs |
+|-------------|-------------|---|
+| **200** | OK | User profile retrieved successfully |
+| **401** | Unauthorized | Missing, invalid, or expired token |
+| **500** | Internal Server Error | Server-side exceptions |
+
+---
+
+## Example cURL Request for Profile
+
+```bash
+curl -X GET http://localhost:4000/users/profile \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+---
+
+## GET /users/logout
+
+#### Description
+This endpoint logs out the authenticated user by clearing the authentication token cookie and adding the token to a blacklist to prevent reuse. Requires valid JWT token.
+
+---
+
+## Request Details
+
+### HTTP Method
+```
+GET
+```
+
+### Endpoint URL
+```
+/users/logout
+```
+
+### Authentication
+**Required** - Must include valid JWT token
+
+#### Option 1: Bearer Token in Header
+```
+Authorization: Bearer <jwt_token>
+```
+
+#### Option 2: Token in Cookie
+```
+Cookie: token=<jwt_token>
+```
+
+### Request Body
+None - No request body required
+
+---
+
+## Response Details
+
+### Success Response (HTTP 200 - OK)
+
+Returns a success message after logout. The token is blacklisted and cookie is cleared.
+
+```json
+{
+  "message": "Logged out"
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+### Unauthorized Response (HTTP 401 - Unauthorized)
+
+Returned when token is missing, invalid, or expired.
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+### Server Error Response (HTTP 500 - Internal Server Error)
+
+Returned when an unexpected server error occurs.
+
+```json
+{
+  "error": "Internal Server Error"
+}
+```
+
+**Status Code:** `500 Internal Server Error`
+
+---
+
+## Status Codes Summary (Logout)
+
+| Status Code | Description | When It Occurs |
+|-------------|-------------|---|
+| **200** | OK | User logged out successfully |
+| **401** | Unauthorized | Missing, invalid, or expired token |
+| **500** | Internal Server Error | Server-side exceptions |
+
+---
+
+## Example cURL Request for Logout
+
+```bash
+curl -X GET http://localhost:4000/users/logout \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+---
+
 ## Notes
 
 - The token returned in the response is a JWT token with a 1-hour expiration time
@@ -332,3 +539,5 @@ curl -X POST http://localhost:4000/users/login \
 - Duplicate emails are not allowed (unique constraint on email field)
 - The password field is not returned in the response for security reasons
 - Login returns HTTP 200 (OK) while register returns HTTP 201 (Created)
+- Profile and Logout endpoints require authentication via JWT token
+- Logout blacklists the token to prevent reuse after logging out
