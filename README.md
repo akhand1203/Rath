@@ -534,7 +534,7 @@ curl -X GET http://localhost:4000/users/logout \
 
 # Captain API Documentation
 
-## POST /captain/register
+## POST /captains/register
 
 #### Description
 This endpoint registers a new captain (driver) by creating a captain account with the provided credentials and vehicle information. The password is hashed using bcrypt before storing in the database, and a JWT authentication token is generated and returned upon successful registration.
@@ -550,7 +550,7 @@ POST
 
 ### Endpoint URL
 ```
-/captain/register
+/captains/register
 ```
 
 ### Content-Type
@@ -732,7 +732,7 @@ Returned when an unexpected server error occurs (database connection failure, ha
 ## Example cURL Request for Captain Register
 
 ```bash
-curl -X POST http://localhost:4000/captain/register \
+curl -X POST http://localhost:4000/captains/register \
   -H "Content-Type: application/json" \
   -d '{
     "fullname": {
@@ -752,12 +752,384 @@ curl -X POST http://localhost:4000/captain/register \
 
 ---
 
+## POST /captains/login
+
+#### Description
+This endpoint authenticates a captain by verifying email and password credentials. If valid, returns the captain object and a JWT authentication token for subsequent API requests.
+
+---
+
+## Request Details
+
+### HTTP Method
+```
+POST
+```
+
+### Endpoint URL
+```
+/captains/login
+```
+
+### Content-Type
+```
+application/json
+```
+
+### Request Body
+
+The request body must be a JSON object with the following fields:
+
+#### Required Fields
+
+| Field | Type | Constraints | Description |
+|-------|------|-------------|-------------|
+| `email` | string | Must be a valid email | Captain's email address |
+| `password` | string | Minimum 6 characters | Captain's password |
+
+### Example Request
+
+```json
+{
+  "email": "rajesh.kumar@example.com",
+  "password": "captain123"
+}
+```
+
+---
+
+## Response Details
+
+### Success Response (HTTP 200 - OK)
+
+Returns the authenticated captain object and an authentication JWT token.
+
+```json
+{
+  "captain": {
+    "_id": "507f1f77bcf86cd799439012",
+    "fullname": {
+      "firstname": "Rajesh",
+      "lastname": "Kumar"
+    },
+    "email": "rajesh.kumar@example.com",
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "status": "inactive"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+### Validation Error Response (HTTP 400 - Bad Request)
+
+Returned when the request data fails validation (invalid email format, short password).
+
+```json
+{
+  "errors": [
+    {
+      "type": "field",
+      "msg": "Invalid Email",
+      "path": "email",
+      "location": "body"
+    }
+  ]
+}
+```
+
+**Status Code:** `400 Bad Request`
+
+---
+
+### Invalid Credentials Response (HTTP 401 - Unauthorized)
+
+Returned when email is not found or password is incorrect.
+
+```json
+{
+  "message": "Invalid email or password"
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+### Server Error Response (HTTP 500 - Internal Server Error)
+
+Returned when an unexpected server error occurs.
+
+```json
+{
+  "error": "Internal Server Error"
+}
+```
+
+**Status Code:** `500 Internal Server Error`
+
+---
+
+## Status Codes Summary (Captain Login)
+
+| Status Code | Description | When It Occurs |
+|-------------|-------------|---|
+| **200** | OK | Captain authenticated successfully |
+| **400** | Bad Request | Validation failed (invalid email, short password) |
+| **401** | Unauthorized | Email not found or password incorrect |
+| **500** | Internal Server Error | Database error, server-side exceptions |
+
+---
+
+## Example cURL Request for Captain Login
+
+```bash
+curl -X POST http://localhost:4000/captains/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "rajesh.kumar@example.com",
+    "password": "captain123"
+  }'
+```
+
+---
+
+## GET /captains/profile
+
+#### Description
+This endpoint retrieves the authenticated captain's profile information including vehicle details and status. Requires valid JWT token in the Authorization header or as a cookie. The auth middleware validates the token before returning the captain data.
+
+---
+
+## Request Details
+
+### HTTP Method
+```
+GET
+```
+
+### Endpoint URL
+```
+/captains/profile
+```
+
+### Authentication
+**Required** - Must include valid JWT token
+
+#### Option 1: Bearer Token in Header
+```
+Authorization: Bearer <jwt_token>
+```
+
+#### Option 2: Token in Cookie
+```
+Cookie: token=<jwt_token>
+```
+
+### Request Body
+None - No request body required
+
+---
+
+## Response Details
+
+### Success Response (HTTP 200 - OK)
+
+Returns the authenticated captain's profile data including vehicle information.
+
+```json
+{
+  "captain": {
+    "_id": "507f1f77bcf86cd799439012",
+    "fullname": {
+      "firstname": "Rajesh",
+      "lastname": "Kumar"
+    },
+    "email": "rajesh.kumar@example.com",
+    "vehicle": {
+      "color": "Black",
+      "plate": "ABC1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    },
+    "status": "inactive",
+    "location": {
+      "lat": null,
+      "lng": null
+    }
+  }
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+### Unauthorized Response (HTTP 401 - Unauthorized)
+
+Returned when token is missing, invalid, or expired.
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+### Server Error Response (HTTP 500 - Internal Server Error)
+
+Returned when an unexpected server error occurs.
+
+```json
+{
+  "error": "Internal Server Error"
+}
+```
+
+**Status Code:** `500 Internal Server Error`
+
+---
+
+## Status Codes Summary (Captain Profile)
+
+| Status Code | Description | When It Occurs |
+|-------------|-------------|---|
+| **200** | OK | Captain profile retrieved successfully |
+| **401** | Unauthorized | Missing, invalid, or expired token |
+| **500** | Internal Server Error | Server-side exceptions |
+
+---
+
+## Example cURL Request for Captain Profile
+
+```bash
+curl -X GET http://localhost:4000/captains/profile \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+---
+
+## GET /captains/logout
+
+#### Description
+This endpoint logs out the authenticated captain by clearing the authentication token cookie and adding the token to a blacklist to prevent reuse. Requires valid JWT token.
+
+---
+
+## Request Details
+
+### HTTP Method
+```
+GET
+```
+
+### Endpoint URL
+```
+/captains/logout
+```
+
+### Authentication
+**Required** - Must include valid JWT token
+
+#### Option 1: Bearer Token in Header
+```
+Authorization: Bearer <jwt_token>
+```
+
+#### Option 2: Token in Cookie
+```
+Cookie: token=<jwt_token>
+```
+
+### Request Body
+None - No request body required
+
+---
+
+## Response Details
+
+### Success Response (HTTP 200 - OK)
+
+Returns a success message after logout. The token is blacklisted and cookie is cleared.
+
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+**Status Code:** `200 OK`
+
+---
+
+### Unauthorized Response (HTTP 401 - Unauthorized)
+
+Returned when token is missing, invalid, or expired.
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+**Status Code:** `401 Unauthorized`
+
+---
+
+### Server Error Response (HTTP 500 - Internal Server Error)
+
+Returned when an unexpected server error occurs.
+
+```json
+{
+  "error": "Internal Server Error"
+}
+```
+
+**Status Code:** `500 Internal Server Error`
+
+---
+
+## Status Codes Summary (Captain Logout)
+
+| Status Code | Description | When It Occurs |
+|-------------|-------------|---|
+| **200** | OK | Captain logged out successfully |
+| **401** | Unauthorized | Missing, invalid, or expired token |
+| **500** | Internal Server Error | Server-side exceptions |
+
+---
+
+## Example cURL Request for Captain Logout
+
+```bash
+curl -X GET http://localhost:4000/captains/logout \
+  -H "Authorization: Bearer <jwt_token>"
+```
+
+---
+
 ## Notes
 
-- The token returned in the response is a JWT token with a 24-hour expiration time (for captains)
+- The token returned in the response is a JWT token with a 24-hour expiration time for captains
 - The password field is hashed using bcrypt with a salt round of 10
 - Duplicate emails are not allowed (unique constraint on email field)
 - The password field is not returned in the response for security reasons
+- Profile and Logout endpoints require authentication via JWT token
+- Logout blacklists the token to prevent reuse after logging out
+- Captain status defaults to 'inactive' upon registration and can be updated to 'active'
+- User tokens expire in 1 hour, Captain tokens expire in 24 hours
 - Captains start with a status of `inactive` by default
 - Valid vehicle types are: `car` (4-wheeler), `motorcycle` (2-wheeler), `auto` (3-wheeler/auto-rickshaw)
 - Captain registration follows the same structure as user registration but includes vehicle information
