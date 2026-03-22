@@ -22,7 +22,7 @@ const captainSchema = new mongoose.Schema({
         match: [/\S+@\S+\.\S+/, 'Invalid email format'],
         minlength: [5, 'Email must be at least 5 characters']
     },
-    Password: {
+    password: {
         type: String,
         required: true,
         minlength: [6, 'Password must be at least 6 characters']
@@ -75,10 +75,10 @@ captainSchema.methods.generateAuthToken = function(){
 
 
 captainSchema.methods.comparePassword = async function(password){
-    return await bcrypt.compare(password, this.Password);
+    return await bcrypt.compare(password, this.password);
 }
 
-captainSchema.static.hashPassword = async function(password){
+captainSchema.statics.hashPassword = async function(password){
     return await bcrypt.hash(password, 10);
 }
 
