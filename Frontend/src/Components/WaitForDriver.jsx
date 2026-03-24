@@ -15,7 +15,7 @@ const WaitForDriver = (props) => {
         <div className="flex items-center gap-3">
           <img
             className="h-16 w-16 rounded-full object-cover"
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQv5jMx5xPRuEXYFPjqbPGK-qgPbh4gJqUHLw&s"
+            src="https://ui-avatars.com/api/?name=Ashok+Kumar&background=random"
             alt="driver"
           />
           <div>
