@@ -102,8 +102,8 @@ const Home = () => {
   return (
     <div className="h-screen relative overflow-hidden">
       <img
-        className="w-20 absolute left-5 top-5"
-        src="https://imgs.search.brave.com/Qytw_NXKyFxwwc0vzLr3hbi8hrXtzDbeh_Ziku74uSI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9sb2dv/cy13b3JsZC5uZXQv/d3AtY29udGVudC91/cGxvYWRzLzIwMjAv/MDUvVWJlci1Mb2dv/LTcwMHgzOTQucG5n"
+        className="h-15 w-15 absolute left-1 top-2"
+        src="/Rath.png"
         alt=""
       />
       <div className="h-screen w-screen">

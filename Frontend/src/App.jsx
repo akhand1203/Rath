@@ -13,6 +13,7 @@ import CaptainProtectedWrapper from "./pages/CaptainProtectedWrapper";
 import CaptainLogout from "./pages/CaptainLogout";
 import Riding from "./Components/Riding";
 import CaptainRiding from "./pages/CaptainRiding";
+import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/react'
 
 const App = () => {
   return (

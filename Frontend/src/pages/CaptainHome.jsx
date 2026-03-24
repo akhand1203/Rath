@@ -14,6 +14,12 @@ const CaptainHome = () => {
   const [confirmRidePopUpPanel, setConfirmRidePopUpPanel] = useState(false)
   
   useGSAP(() => {
+    gsap.set(ridePopUpRef.current, {
+      transform: "translateY(100%)",
+    });
+  }, []);
+
+  useGSAP(() => {
     if (ridePopUpPanel) {
       gsap.to(ridePopUpRef.current, {
         transform: "translateY(0)",
@@ -25,7 +31,13 @@ const CaptainHome = () => {
     }
   }, [ridePopUpPanel]);
 
-useGSAP(() => {
+  useGSAP(() => {
+    gsap.set(confirmRidePopUpRef.current, {
+      transform: "translateY(100%)",
+    });
+  }, []);
+
+  useGSAP(() => {
     if (confirmRidePopUpPanel) {
       gsap.to(confirmRidePopUpRef.current, {
         transform: "translateY(0)",
@@ -41,14 +53,14 @@ useGSAP(() => {
 
   return (
     <div className="h-screen relative">
-      <div className="flex items-center justify-between p-2 bg-white">
+      <div className="flex items-center justify-between p-4 absolute top-0 left-0 right-0 z-10">
         <img
-          className="w-16"
-          src="https://imgs.search.brave.com/Qytw_NXKyFxwwc0vzLr3hbi8hrXtzDbeh_Ziku74uSI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9sb2dv/cy13b3JsZC5uZXQv/d3AtY29udGVudC91/cGxvYWRzLzIwMjAv/MDUvVWJlci1Mb2dv/LTcwMHgzOTQucG5n"
+          className="h-15 w-15"
+          src="/Rath.png"
           alt=""
         />
         <Link
-          to="/home"
+          to="/captain-login"
           className="bg-white rounded-full  shadow-lg hover:bg-gray-100 transition flex items-center justify-center"
         >
           <i className="ri-logout-box-r-line text-lg text-black "></i>
@@ -71,13 +83,13 @@ useGSAP(() => {
        </button>
       </div>
       <div
-        className="fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12"
+        className="fixed w-full z-10 bottom-0 bg-white px-3 py-10 pt-12"
         ref={ridePopUpRef}
       >
           <RidePopUp setRidePopUpPanel={setRidePopUpPanel} setConfirmRidePopUpPanel={setConfirmRidePopUpPanel} />
       </div>
       <div
-        className="fixed w-full h-screen z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12"
+        className="fixed w-full h-screen z-10 bottom-0 bg-white px-3 py-10 pt-12"
         ref={confirmRidePopUpRef}>
           <ConfirmRidePopUp setConfirmRidePopUpPanel={setConfirmRidePopUpPanel} />
       </div>
