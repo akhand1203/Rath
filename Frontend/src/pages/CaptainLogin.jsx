@@ -36,7 +36,7 @@ const CaptainLogin = () => {
   return (
       <div className='p-7 flex flex-col justify-between h-screen'>
          <div>
-          <img className='w-15 mb-3' src="https://imgs.search.brave.com/Qytw_NXKyFxwwc0vzLr3hbi8hrXtzDbeh_Ziku74uSI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9sb2dv/cy13b3JsZC5uZXQv/d3AtY29udGVudC91/cGxvYWRzLzIwMjAv/MDUvVWJlci1Mb2dv/LTcwMHgzOTQucG5n" alt="" />
+          <img className='h-15 w-15' src="/Rath.png" alt="" />
         <form onSubmit={(e)=>submitHandler(e)} >
              <h3 className='text-lg font-medium mb-2'>What's our captain's Email?</h3>
              <input 

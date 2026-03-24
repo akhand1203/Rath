@@ -27,11 +27,13 @@ const CaptainRiding = (props) => {
   return (
      <div className="h-screen relative">
       <div className="flex items-center justify-between p-2 bg-white">
-        <img
-          className="w-16"
-          src="https://imgs.search.brave.com/Qytw_NXKyFxwwc0vzLr3hbi8hrXtzDbeh_Ziku74uSI/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9sb2dv/cy13b3JsZC5uZXQv/d3AtY29udGVudC91/cGxvYWRzLzIwMjAv/MDUvVWJlci1Mb2dv/LTcwMHgzOTQucG5n"
-          alt=""
-        />
+        <Link to="/">
+          <img
+            className="h-15 w-15 cursor-pointer"
+            src="/Rath.png"
+            alt="Rath Logo"
+          />
+        </Link>
         <Link
           to="/home"
           className="bg-white rounded-full  shadow-lg hover:bg-gray-100 transition flex items-center justify-center"
