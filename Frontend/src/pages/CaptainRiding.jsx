@@ -26,7 +26,7 @@ const CaptainRiding = (props) => {
 
   return (
      <div className="h-screen relative">
-      <div className="flex items-center justify-between p-2 bg-white">
+      <div className="flex items-center justify-between p-2 absolute top-0 left-0 right-0 z-10">
         <Link to="/">
           <img
             className="h-15 w-15 cursor-pointer"
@@ -35,7 +35,7 @@ const CaptainRiding = (props) => {
           />
         </Link>
         <Link
-          to="/home"
+          to="/captain-login"
           className="bg-white rounded-full  shadow-lg hover:bg-gray-100 transition flex items-center justify-center"
         >
           <i className="ri-logout-box-r-line text-lg text-black "></i>
