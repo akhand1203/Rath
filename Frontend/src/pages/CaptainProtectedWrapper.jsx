@@ -7,7 +7,7 @@ const CaptainProtectedWrapper = ({
     children
 }) => {
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('captainToken')
 
     const navigate = useNavigate()
     const { captain, setCaptain } = useContext(CaptainDataContext)
@@ -31,7 +31,7 @@ const CaptainProtectedWrapper = ({
                 }   
             })
             .catch(error => {
-                localStorage.removeItem('token')
+                localStorage.removeItem('captainToken')
                 navigate('/captain-login')
                 console.error('Failed to fetch captain profile:', error.response?.data || error.message)
             })

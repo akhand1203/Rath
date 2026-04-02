@@ -6,7 +6,7 @@ const UserProtectedWrapper = ({
     children
 }) => {
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('userToken')
 
     const navigate = useNavigate()
 
