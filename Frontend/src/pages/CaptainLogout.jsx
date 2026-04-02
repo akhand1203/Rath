@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 
 const CaptainLogout = () => {
 
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('captainToken')
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -15,7 +15,7 @@ const CaptainLogout = () => {
         })
         .then(response => {
             if(response.status === 200){
-                localStorage.removeItem('token')
+                localStorage.removeItem('captainToken')
                 navigate('/captain-login')
             }
         })

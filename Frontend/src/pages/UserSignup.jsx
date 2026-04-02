@@ -31,7 +31,7 @@ const submitHandler = async (e) => {
     if (response.status === 201) {
       const data = response.data
       setUser(data.user)
-      localStorage.setItem('token', data.token)
+      localStorage.setItem('userToken', data.token)
       navigate('/home')
     }
 

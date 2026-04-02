@@ -1,12 +1,35 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-const CaptainDetails = () => {
+const CaptainDetails = ({ captain }) => {
+  useEffect(() => {
+    console.log('📋 CaptainDetails received captain:', captain);
+    if (captain) {
+      console.log('👤 Captain fullname:', captain.fullname);
+      if (captain.fullname) {
+        console.log('👤 Captain firstname:', captain.fullname.firstname);
+        console.log('👤 Captain lastname:', captain.fullname.lastname);
+      }
+    }
+  }, [captain]);
+  
+  // Helper function to capitalize first letter
+  const capitalize = (str) => {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+  
+  const captainName = captain?.fullname?.firstname && captain?.fullname?.lastname 
+    ? `${capitalize(captain.fullname.firstname)} ${capitalize(captain.fullname.lastname)}`
+    : captain?.fullname?.firstname 
+    ? capitalize(captain.fullname.firstname)
+    : 'Captain'
+    
   return (
     <div>
          <div className="flex items-center justify-between p-4 border-b-2 border-gray-200">
           <div className="flex items-center gap-3">
             <img className='h-10 w-10 rounder-full object-cover' src="https://imgs.search.brave.com/oY6tGweDH8qHdXRDReqazVzDsHjbxPEq4y5OINcwNpA/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvOTAy/NDY5MTA2L3Bob3Rv/L2ZsZXhpYmlsaXR5/LWluLWJ1c2luZXNz/LW1lYW5zLXN1Y2Nl/c3MuanBnP3M9NjEy/eDYxMiZ3PTAmaz0y/MCZjPTRaTXFveVdI/WDNxNEJiS0VRUXdK/VGViLVNubmc4VDZ4/cnR3My11X2w2cFk9" alt="" />
-            <h4 className="font-bold text-lg">Ashok Kumar</h4>
+            <h4 className="font-bold text-lg">{captainName}</h4>
           </div>
           <div>
             <h4 className="font-bold text-lg">₹426.30</h4>
