@@ -81,8 +81,6 @@ const CaptainHome = () => {
     };
   }, [socket]);
 
-  useEffect(() => {
-
   // Listen for new rides
   useEffect(() => {
     if (!isConnected) {
@@ -283,6 +281,6 @@ const CaptainHome = () => {
       </div>
     </div>
   );
-};
+}
 
 export default CaptainHome;

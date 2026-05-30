@@ -28,6 +28,7 @@ const commonCities = {
   'tokyo': [
     { id: 10, displayName: 'Tokyo, Japan', lat: 35.6762, lng: 139.6503, type: 'city', importance: 0.9 }
   ]
+};
 
 Object.entries(commonCities).forEach(([key, cities]) => {
   suggestionCache.set(key, {
@@ -144,19 +145,18 @@ const getLocationSuggestions = async (input) => {
 
     const cacheKey = input.toLowerCase().trim();
 
-
     if (suggestionCache.has(cacheKey)) {
       const cached = suggestionCache.get(cacheKey);
       if (Date.now() - cached.timestamp < CACHE_DURATION) {
         console.log(`✅ Returning cached suggestions for "${input}"`);
         return cached.data;
       } else {
-        // Cache expired, remove it
         suggestionCache.delete(cacheKey);
       }
     }
 
-
+    // ✅ THIS WAS THE MISSING LINE
+    const response = await axios.get('https://nominatim.openstreetmap.org/search', {
       params: {
         q: input,
         format: 'json',
@@ -180,7 +180,6 @@ const getLocationSuggestions = async (input) => {
         importance: result.importance
       }));
 
-      // Cache the results
       suggestionCache.set(cacheKey, {
         data: suggestions,
         timestamp: Date.now()
