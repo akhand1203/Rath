@@ -24,64 +24,31 @@ const CaptainHome = () => {
   const captainFetchedRef = useRef(false);
   const captainRegisteredSocketRef = useRef(null);
   
-  // Fetch captain profile on component mount - ONLY ONCE
   useEffect(() => {
     if (!captain && !captainFetchedRef.current) {
       captainFetchedRef.current = true;
-      console.log('🔄 Fetching captain profile...');
       
       const fetchCaptainProfile = async () => {
         try {
-          console.log('📨 Sending GET request to /captains/profile');
           const response = await captainAxiosInstance.get('/captains/profile');
           
-          console.log('✅ Captain profile API returned 200 OK');
-          console.log('   Full Response:', response);
-          console.log('   Response Status:', response.status);
-          console.log('   Response Data:', response.data);
-          console.log('   Captain Object:', response.data?.captain);
-          
-          // Check if captain data is null
           if (!response.data?.captain) {
-            console.error('❌ Captain data is NULL in response');
-            console.error('   This means the captain record was not found in DB');
-            console.error('   Possible causes:');
-            console.error('   1. Captain not registered in the system');
-            console.error('   2. Token contains wrong captain ID');
-            console.error('   3. Captain account was deleted');
-            
-            // Try to logout and redirect
             setTimeout(() => {
-              console.log('🔄 Redirecting to captain login...');
               window.localStorage.removeItem('captainToken');
               window.location.href = '/captain-login';
             }, 3000);
             return;
           }
           
-          console.log('✅ Captain profile FETCHED SUCCESSFULLY');
-          console.log('   Captain Name:', response.data.captain.fullname?.firstname);
-          console.log('   Captain ID:', response.data.captain._id);
-          console.log('   Captain Email:', response.data.captain.email);
-          
           setCaptain(response.data.captain);
-          console.log('   State updated successfully');
         } catch (error) {
-          console.error('❌ ERROR fetching captain profile');
-          console.error('   Error Response:', error.response?.data);
-          console.error('   Error Status:', error.response?.status);
-          console.error('   Error Message:', error.message);
-          
           if (error.response?.status === 401) {
-            console.log('🚫 Unauthorized - Token may be invalid');
             window.localStorage.removeItem('captainToken');
             setTimeout(() => window.location.href = '/captain-login', 2000);
             return;
           }
           
-          // Retry after 2 seconds
           setTimeout(() => {
-            console.log('🔄 Retrying captain profile fetch...');
             captainFetchedRef.current = false;
           }, 2000);
         }
@@ -91,62 +58,30 @@ const CaptainHome = () => {
     }
   }, []);
 
-  // Monitor socket connection status
   useEffect(() => {
-    console.log('\n📊 SOCKET STATUS DEBUG:');
-    console.log('   isConnected:', isConnected);
-    console.log('   captain:', captain ? `${captain.fullname?.firstname} (${captain._id})` : 'null');
-    console.log('   captainLocation:', captainLocation);
-    console.log('   currentRide:', currentRide ? currentRide._id : 'none');
-    console.log('   ridePopUpPanel:', ridePopUpPanel);
-  }, [isConnected, captain, captainLocation, currentRide, ridePopUpPanel]);
+    if (!socket) return;
 
-  // Register the captain socket on every fresh socket connection
+    const handleRideStarted = (data) => {
+      console.log('🚀 ride-started EVENT RECEIVED (Captain):', data);
+    };
+
+    const handleRideCompleted = (data) => {
+      console.log('✅ ride-completed EVENT RECEIVED (Captain):', data);
+      setRidePopUpPanel(false);
+      setConfirmRidePopUpPanel(false);
+      setCurrentRide(null);
+    };
+
+    socket.on('ride-started', handleRideStarted);
+    socket.on('ride-completed', handleRideCompleted);
+
+    return () => {
+      socket.off('ride-started', handleRideStarted);
+      socket.off('ride-completed', handleRideCompleted);
+    };
+  }, [socket]);
+
   useEffect(() => {
-    if (isConnected && captain?._id && socket?.id && captainRegisteredSocketRef.current !== socket.id) {
-      const locationForRegistration = captainLocation || { lat: 28.7041, lng: 77.1025 };
-      console.log('\n🔗 Registering captain socket...');
-      console.log('   Captain ID:', captain._id);
-      console.log('   Socket ID:', socket.id);
-      console.log('   Location:', locationForRegistration);
-      registerCaptain(captain._id, locationForRegistration);
-      captainRegisteredSocketRef.current = socket.id;
-    }
-  }, [isConnected, captain?._id, captainLocation, registerCaptain, socket?.id]);
-
-  // Bootstrap captain location once and keep it fresh in the background
-  useEffect(() => {
-    if (isConnected && captain && !captainLocation) {
-      console.log('\n📍 Bootstrapping captain location...');
-      console.log('   Captain ID:', captain._id);
-      
-      const defaultLocation = { lat: 28.7041, lng: 77.1025 };
-      console.log('📍 Setting default location immediately (Delhi):', defaultLocation);
-      setCaptainLocation(defaultLocation);
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const realLocation = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-            console.log('📍 Real location obtained:', realLocation);
-            setCaptainLocation(realLocation);
-
-            sendMessage('update-captain-location', {
-              captainId: captain._id,
-              location: realLocation
-            });
-            console.log('   ✅ Real location sent to server');
-          },
-          (error) => {
-            console.warn('⚠️ Geolocation error:', error.message);
-          }
-        );
-      }
-    }
-  }, [isConnected, captain, captainLocation, sendMessage]);
 
   // Listen for new rides
   useEffect(() => {

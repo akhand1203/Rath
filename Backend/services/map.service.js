@@ -1,10 +1,8 @@
 const axios = require('axios');
 
-// Simple in-memory cache to reduce API calls
 const suggestionCache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 5 * 60 * 1000;
 
-// Pre-populate with common Indian cities to avoid rate limiting
 const commonCities = {
   'delhi': [
     { id: 1, displayName: 'Delhi, India', lat: 28.6139, lng: 77.2090, type: 'city', importance: 0.8 },
@@ -30,9 +28,7 @@ const commonCities = {
   'tokyo': [
     { id: 10, displayName: 'Tokyo, Japan', lat: 35.6762, lng: 139.6503, type: 'city', importance: 0.9 }
   ]
-};
 
-// Pre-cache common cities
 Object.entries(commonCities).forEach(([key, cities]) => {
   suggestionCache.set(key, {
     data: cities,
@@ -41,11 +37,6 @@ Object.entries(commonCities).forEach(([key, cities]) => {
   });
 });
 
-/**
- * Get coordinates (latitude and longitude) from an address using OpenStreetMap Nominatim API
- * @param {string} address - The address to geocode
- * @returns {Promise<{lat: number, lng: number}>} Object containing latitude and longitude
- */
 const getCoordinatesFromAddress = async (address) => {
   try {
     if (!address || address.trim() === '') {
@@ -78,12 +69,6 @@ const getCoordinatesFromAddress = async (address) => {
   }
 };
 
-/**
- * Get address details from coordinates using OpenStreetMap Nominatim API (Reverse Geocoding)
- * @param {number} lat - Latitude
- * @param {number} lng - Longitude
- * @returns {Promise<Object>} Object containing address details
- */
 const getAddressFromCoordinates = async (lat, lng) => {
   try {
     if (!lat || !lng) {
@@ -117,21 +102,12 @@ const getAddressFromCoordinates = async (lat, lng) => {
   }
 };
 
-/**
- * Get distance and route between two coordinates
- * @param {number} lat1 - Starting latitude
- * @param {number} lng1 - Starting longitude
- * @param {number} lat2 - Ending latitude
- * @param {number} lng2 - Ending longitude
- * @returns {Promise<Object>} Object containing distance and route information
- */
 const getDistanceBetweenCoordinates = async (lat1, lng1, lat2, lng2) => {
   try {
     if (!lat1 || !lng1 || !lat2 || !lng2) {
       throw new Error('All coordinates are required');
     }
 
-    // Using OSRM (Open Source Routing Machine) for distance calculation
     const response = await axios.get(
       `https://router.project-osrm.org/route/v1/driving/${lng1},${lat1};${lng2},${lat2}`,
       {
@@ -144,8 +120,8 @@ const getDistanceBetweenCoordinates = async (lat1, lng1, lat2, lng2) => {
     if (response.data && response.data.routes && response.data.routes.length > 0) {
       const route = response.data.routes[0];
       return {
-        distance: route.distance / 1000, // Convert to km
-        duration: route.duration / 60, // Convert to minutes
+        distance: route.distance / 1000,
+        duration: route.duration / 60,
         lat1,
         lng1,
         lat2,
@@ -160,11 +136,6 @@ const getDistanceBetweenCoordinates = async (lat1, lng1, lat2, lng2) => {
   }
 };
 
-/**
- * Get location suggestions from partial address
- * @param {string} input - Partial address or location name
- * @returns {Promise<Array>} Array of location suggestions with coordinates
- */
 const getLocationSuggestions = async (input) => {
   try {
     if (!input || input.trim() === '') {
@@ -173,7 +144,7 @@ const getLocationSuggestions = async (input) => {
 
     const cacheKey = input.toLowerCase().trim();
 
-    // Check cache first
+
     if (suggestionCache.has(cacheKey)) {
       const cached = suggestionCache.get(cacheKey);
       if (Date.now() - cached.timestamp < CACHE_DURATION) {
@@ -185,10 +156,7 @@ const getLocationSuggestions = async (input) => {
       }
     }
 
-    // Add 1.2 second delay to respect OpenStreetMap rate limits
-    await new Promise(resolve => setTimeout(resolve, 1200));
 
-    const response = await axios.get('https://nominatim.openstreetmap.org/search', {
       params: {
         q: input,
         format: 'json',

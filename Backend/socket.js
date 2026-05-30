@@ -46,11 +46,32 @@ const removeSocketMappings = async (socketId) => {
 
 const registerUserSocket = async (socket, userId) => {
     const normalizedUserId = String(userId);
+    console.log(`\n📝 REGISTERING USER SOCKET`);
+    console.log(`   Normalizing userId: ${userId} -> ${normalizedUserId}`);
+    
     userSocketMap[normalizedUserId] = socket.id;
     socket.data.userId = normalizedUserId;
     socket.data.userType = 'user';
     socket.join(normalizedUserId);
-    console.log('User connected:', normalizedUserId, socket.id);
+    
+    console.log(`✅ User socket registered successfully`);
+    console.log(`   userId: ${normalizedUserId}`);
+    console.log(`   socketId: ${socket.id}`);
+    console.log(`   Joined room: ${normalizedUserId}`);
+    console.log(`   Total users in map: ${Object.keys(userSocketMap).length}`);
+    
+    console.log(`\n📬 Sending test message to user to verify connection...`);
+    try {
+        io.to(normalizedUserId).emit('connection-confirmed', {
+            message: 'You are now connected to the server',
+            userId: normalizedUserId,
+            socketId: socket.id,
+            timestamp: new Date().toISOString()
+        });
+        console.log(`✅ Test message sent to room: ${normalizedUserId}`);
+    } catch (testError) {
+        console.error(`❌ Failed to send test message:`, testError.message);
+    }
 
     const updatedUser = await userModel.findByIdAndUpdate(
         normalizedUserId,
@@ -104,7 +125,10 @@ const initializeSocket = (server) => {
     });
 
     io.on('connection', (socket) => {
-        console.log('🔌 Socket connected:', socket.id);
+        console.log('\n🔌 Socket connected:', socket.id);
+        console.log('   📊 Total active sockets:', Object.keys(io.sockets.sockets).length);
+        console.log('   📊 Users registered:', Object.keys(userSocketMap).length);
+        console.log('   📊 Captains registered:', Object.keys(captainSocketMap).length);
 
         socket.on('register-user', async (userId) => {
             try {
@@ -135,20 +159,32 @@ const initializeSocket = (server) => {
         socket.on('join', async (data = {}) => {
             const { userId, userType, location } = data;
 
+            console.log('\n\n⚠️⚠️⚠️ ===== JOIN EVENT RECEIVED ===== ⚠️⚠️⚠️');
+            console.log('   📥 RECEIVED "join" EVENT');
+            console.log('   userType:', userType);
+            console.log('   userId:', userId);
+            console.log('   socket.id:', socket.id);
+            console.log('   ✅ THIS PROVES SOCKET CONNECTION IS WORKING');
+
             try {
                 if (userType === 'user') {
+                    console.log('   Action: Registering as USER');
                     await registerUserSocket(socket, userId);
+                    console.log('   ✅ User registered successfully');
                     return;
                 }
 
                 if (userType === 'captain') {
+                    console.log('   Action: Registering as CAPTAIN');
                     await registerCaptainSocket(socket, userId, location);
+                    console.log('   ✅ Captain registered successfully');
                     return;
                 }
 
                 console.error('❌ join event missing valid userType:', data);
             } catch (error) {
                 console.error('❌ Error in join event:', error.message);
+                console.error('   Stack:', error.stack);
             }
         });
 
@@ -183,12 +219,15 @@ const initializeSocket = (server) => {
 
 const sendMessagetosocketid = (socketId, eventName, data) => {
     if (!io || !socketId) {
+        console.error(`❌ Cannot emit - io: ${!!io}, socketId: ${socketId}`);
         return false;
     }
 
     try {
-        console.log(`📤 Emitting ${eventName} to:`, socketId);
+        console.log(`📤 Emitting "${eventName}" to socketId: ${socketId}`);
+        console.log(`   Payload keys: ${Object.keys(data || {}).join(', ')}`);
         io.to(socketId).emit(eventName, data);
+        console.log(`✅ Event emitted successfully`);
         return true;
     } catch (error) {
         console.error(`❌ Error sending to socket: ${error.message}`);
@@ -201,11 +240,16 @@ const getCaptainSocketId = (captainId) => captainSocketMap[String(captainId)] ||
 
 const sendMessageToRoom = (roomId, eventName, data) => {
     if (!io) {
+        console.error(`❌ Cannot emit - io not initialized`);
         return false;
     }
 
+    const normalizedRoomId = String(roomId);
     try {
-        io.to(String(roomId)).emit(eventName, data);
+        console.log(`📢 Emitting "${eventName}" to room: ${normalizedRoomId}`);
+        console.log(`   Payload keys: ${Object.keys(data || {}).join(', ')}`);
+        io.to(normalizedRoomId).emit(eventName, data);
+        console.log(`✅ Event emitted to room successfully`);
         return true;
     } catch (error) {
         console.error(`❌ Error sending to room: ${error.message}`);

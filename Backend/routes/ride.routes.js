@@ -4,7 +4,6 @@ const {body,query} = require('express-validator');
 const rideController = require('../controllers/ride.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 
-// POST - Create a new ride
 router.post('/create',
     authMiddleware.authUser,
     body('pickup').isString().withMessage('Invalid pickup location'),
@@ -13,35 +12,41 @@ router.post('/create',
     rideController.createRide
 );
 
-// GET - Get authenticated user's rides
 router.get('/my-rides',
     authMiddleware.authUser,
     rideController.getRidesByUser
 );
 
-// GET - Get a specific ride by ID
 router.get('/:rideId',
     authMiddleware.authUser,
     rideController.getRideById
 );
 
-// GET - Get all rides (with pagination)
 router.get('/',
     authMiddleware.authUser,
     rideController.getAllRides
 );
 
-// PUT - Update ride status
 router.put('/:rideId/status',
     authMiddleware.authCaptain,
     body('status').isIn(['pending', 'accepted', 'started', 'completed', 'cancelled']).withMessage('Invalid status'),
     rideController.updateRideStatus
 );
 
-// PUT - Cancel a ride
 router.put('/:rideId/cancel',
     authMiddleware.authUser,
     rideController.cancelRide
+);
+
+router.put('/:rideId/start',
+    authMiddleware.authCaptain,
+    body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+    rideController.startRide
+);
+
+router.put('/:rideId/end',
+    authMiddleware.authCaptain,
+    rideController.endRide
 );
 
 router.get('/fare/:rideId',

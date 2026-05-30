@@ -5,7 +5,6 @@ const port = process.env.PORT || 4000;
 
 const server = http.createServer(app);
 
-// Initialize Socket.io
 initializeSocket(server);
 
 server.listen(port,()=>{

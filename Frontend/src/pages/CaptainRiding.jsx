@@ -1,13 +1,19 @@
 import React, { useState, useRef } from 'react'
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import FinishRide from '../Components/FinishRide';
+import captainAxiosInstance from '../utils/captainAxiosInstance';
 
 const CaptainRiding = (props) => {
     const location = useLocation();
+    const navigate = useNavigate();
     const ride = location.state?.ride || {};
     const [finishRidePanel, setFinishRidePanel] = useState(false)
+    const [otp, setOtp] = useState('');
+    const [isStarting, setIsStarting] = useState(false);
+    const [rideStarted, setRideStarted] = useState(false);
+    const [error, setError] = useState(null);
     const finishRideRef = useRef(null);
 
     const capitalizeWord = (word) => {
@@ -29,6 +35,35 @@ const CaptainRiding = (props) => {
         return capitalizeWord(userDetails.email?.split('@')[0]) || 'User';
     };
 
+    const handleStartRide = async (e) => {
+        e.preventDefault();
+        try {
+            setIsStarting(true);
+            setError(null);
+
+            if (!otp || otp.length !== 6) {
+                setError('Please enter a valid 6-digit OTP');
+                setIsStarting(false);
+                return;
+            }
+
+            console.log('Starting ride with OTP:', otp);
+            console.log('Ride ID:', ride._id);
+
+            const response = await captainAxiosInstance.put(
+                `/rides/${ride._id}/start`,
+                { otp }
+            );
+
+            console.log('Ride started successfully:', response.data);
+            setRideStarted(true);
+            setOtp('');
+        } catch (error) {
+            console.error('Error starting ride:', error);
+            setError(error.response?.data?.message || 'Failed to start ride. Invalid OTP.');
+            setIsStarting(false);
+        }
+    };
 
     useGSAP(() => {
     if (finishRidePanel) {
@@ -66,7 +101,41 @@ const CaptainRiding = (props) => {
           alt=""
         />
       </div>
-      <div className="h-1/5 p-4 flex flex-col justify-center bg-yellow-400 ">
+
+      {!rideStarted ? (
+        <div className="h-1/5 p-4 flex flex-col justify-center bg-yellow-400">
+          <h3 className="font-bold text-lg mb-4">Verify OTP to Start Ride</h3>
+          <div className="flex items-center justify-between mb-3 border-b border-yellow-500 pb-2">
+            <div>
+              <h4 className="font-bold text-xl">{getUserName()}</h4>
+              <p className="font-semibold text-sm truncate max-w-[200px]">{ride?.destination?.address || 'Destination'}</p>
+            </div>
+            <h4 className="font-bold text-xl">{ride?.distance ? `${ride.distance.toFixed(1)}km` : '0km'}</h4>
+          </div>
+
+          {error && <div className="bg-red-100 text-red-700 p-2 rounded mb-3 text-sm">{error}</div>}
+
+          <form onSubmit={handleStartRide}>
+            <input
+              type="number"
+              placeholder="Enter 6-digit OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.slice(0, 6))}
+              className="w-full p-2 rounded-lg border-2 border-yellow-600 font-bold text-center tracking-widest mb-3"
+              maxLength="6"
+              disabled={isStarting}
+            />
+            <button 
+              type="submit" 
+              disabled={isStarting}
+              className='bg-green-600 text-white font-bold p-3 w-full rounded-lg shadow-lg hover:bg-green-700 disabled:opacity-50'
+            >
+              {isStarting ? 'Starting...' : 'Start Ride'}
+            </button>
+          </form>
+        </div>
+      ) : (
+        <div className="h-1/5 p-4 flex flex-col justify-center bg-yellow-400 ">
           <div className="flex items-center justify-between mb-3 border-b border-yellow-500 pb-2">
             <div>
               <h4 className="font-bold text-xl">{getUserName()}</h4>
@@ -75,7 +144,9 @@ const CaptainRiding = (props) => {
             <h4 className="font-bold text-xl">{ride?.distance ? `${ride.distance.toFixed(1)}km` : '0km'}</h4>
           </div>
           <button onClick={() => setFinishRidePanel(true)} className='bg-green-600 text-white font-bold p-3 w-full rounded-lg shadow-lg'>Finish Ride</button>
-      </div>
+        </div>
+      )}
+
      <div
         className="fixed w-full h-screen z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12"
         ref={finishRideRef}>

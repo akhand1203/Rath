@@ -10,7 +10,6 @@ const captainRoutes = require('./routes/captain.routes');
 const rideRoutes = require('./routes/ride.routes');
 const mapRoutes = require('./routes/map.routes');
 
-// Verify environment variables
 console.log('🔐 ENVIRONMENT CHECK:');
 console.log('   JWT_SECRET exists:', !!process.env.JWT_SECRET);
 console.log('   JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);

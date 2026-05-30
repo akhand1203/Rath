@@ -1,10 +1,5 @@
 const mapService = require('../services/map.service');
 
-/**
- * Get coordinates from address
- * GET /api/maps/get-coordinates?address=<address>
- * Uses OpenStreetMap Nominatim API
- */
 module.exports.getCoordinates = async (req, res, next) => {
   try {
     const { address } = req.query;
@@ -22,11 +17,6 @@ module.exports.getCoordinates = async (req, res, next) => {
   }
 };
 
-/**
- * Get address from coordinates (Reverse Geocoding)
- * GET /api/maps/get-address?lat=<latitude>&lng=<longitude>
- * Uses OpenStreetMap Nominatim API
- */
 module.exports.getAddress = async (req, res, next) => {
   try {
     const { lat, lng } = req.query;
@@ -44,11 +34,6 @@ module.exports.getAddress = async (req, res, next) => {
   }
 };
 
-/**
- * Get distance and duration between two coordinates
- * GET /api/maps/get-distance?lat1=<lat>&lng1=<lng>&lat2=<lat>&lng2=<lng>
- * Uses OSRM (Open Source Routing Machine) API
- */
 module.exports.getDistance = async (req, res, next) => {
   try {
     const { lat1, lng1, lat2, lng2 } = req.query;
@@ -71,11 +56,6 @@ module.exports.getDistance = async (req, res, next) => {
   }
 };
 
-/**
- * Get location suggestions from partial address
- * GET /api/maps/get-suggestions?input=<partial_address>
- * Uses OpenStreetMap Nominatim API
- */
 module.exports.getSuggestions = async (req, res, next) => {
   try {
     const { input } = req.query;

@@ -20,8 +20,12 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('userToken');
-      window.location.href = '/user-login';
+
+      
+      if (!isPollingRequest) {
+        localStorage.removeItem('userToken');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

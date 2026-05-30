@@ -1,12 +1,16 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useRef } from 'react';
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import captainAxiosInstance from '../utils/captainAxiosInstance';
 
 
 const FinishRide = (props) => {
   const ride = props.ride || {};
+  const navigate = useNavigate();
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [error, setError] = useState(null);
 
   const capitalizeWord = (word) => {
     if (!word) return '';
@@ -25,6 +29,32 @@ const FinishRide = (props) => {
         return capitalizeWord(userDetails.firstname);
     }
     return capitalizeWord(userDetails.email?.split('@')[0]) || 'User';
+  };
+
+  const handleCompleteRide = async (e) => {
+    e.preventDefault();
+    try {
+      setIsCompleting(true);
+      setError(null);
+
+      console.log('Completing ride:', ride._id);
+
+      const response = await captainAxiosInstance.put(
+        `/rides/${ride._id}/end`
+      );
+
+      console.log('Ride completed successfully:', response.data);
+
+      props.setFinishRidePanel(false);
+      
+      setTimeout(() => {
+        navigate('/captain-home');
+      }, 500);
+    } catch (error) {
+      console.error('Error completing ride:', error);
+      setError(error.response?.data?.message || 'Failed to complete ride');
+      setIsCompleting(false);
+    }
   };
 
   return (
@@ -77,15 +107,16 @@ const FinishRide = (props) => {
         </div>
       </div>
       <div>
+        {error && <div className="bg-red-100 text-red-700 p-2 rounded mt-3 text-sm">{error}</div>}
         <p className='text-gray-500 mt-6 text-sm'>Click on Complete Ride button if you complete the Payment</p>
-        <form onSubmit={(e)=>{
-          e.preventDefault();
-        }}>
-
-            <Link to='/captain-home'  className="text-white font-semibold mt-5 p-2 flex justify-center rounded-xl w-full bg-green-600">
-        Complete Ride
-      </Link>
-       
+        <form onSubmit={handleCompleteRide}>
+          <button
+            type="submit"
+            disabled={isCompleting}
+            className="text-white font-semibold mt-5 p-2 flex justify-center rounded-xl w-full bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isCompleting ? 'Completing...' : 'Complete Ride'}
+          </button>
         </form>
       </div>
      </div>

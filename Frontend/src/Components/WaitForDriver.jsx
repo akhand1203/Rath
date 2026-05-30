@@ -9,10 +9,16 @@ const WaitForDriver = (props) => {
   
   // Log props to debug
   React.useEffect(() => {
-    if (!captain) {
-      console.error('❌ WaitForDriver component has no captain data');
-    }
-  }, [captain]);
+    console.log('📊 WaitForDriver props DEBUG:');
+    console.log('   captain:', captain);
+    console.log('   ride?.captain:', ride?.captain);
+    console.log('   displayCaptain (computed):', displayCaptain);
+    console.log('   ride?.status:', ride?.status);
+    console.log('   rideAccepted (prop):', rideAccepted);
+    console.log('   isRideAccepted (computed):', isRideAccepted);
+    console.log('   otp (prop):', props.otp);
+    console.log('   rideOtp (computed):', rideOtp);
+  }, [captain, ride, rideAccepted, props.otp]);
   
   // Ensure setWaitForDriver is a function
   const handleSetWaitForDriver = (value) => {
@@ -42,14 +48,35 @@ const WaitForDriver = (props) => {
     );
   }
   
-  const getCaptainName = () => {
-    if (displayCaptain?.fullname?.firstname && displayCaptain?.fullname?.lastname) {
-      return `${displayCaptain.fullname.firstname} ${displayCaptain.fullname.lastname}`;
+const getCaptainName = () => {
+    if (!displayCaptain) {
+      console.warn('❌ displayCaptain is null/undefined');
+      return 'Captain';
     }
-    if (displayCaptain?.firstname && displayCaptain?.lastname) {
+
+    console.log('Captain object:', displayCaptain);
+    
+    // Check nested fullname object (from populated model)
+    if (displayCaptain.fullname) {
+      if (typeof displayCaptain.fullname === 'object') {
+        if (displayCaptain.fullname.firstname && displayCaptain.fullname.lastname) {
+          return `${displayCaptain.fullname.firstname} ${displayCaptain.fullname.lastname}`;
+        }
+      }
+    }
+    
+    // Check direct firstname/lastname properties
+    if (displayCaptain.firstname && displayCaptain.lastname) {
       return `${displayCaptain.firstname} ${displayCaptain.lastname}`;
     }
-    return displayCaptain?.name || 'Captain';
+    
+    // Check for plain name property
+    if (displayCaptain.name) {
+      return displayCaptain.name;
+    }
+    
+    // Fallback
+    return 'Captain';
   };
   
   const getVehicleInfo = () => {
